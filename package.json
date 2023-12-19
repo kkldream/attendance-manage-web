@@ -10,12 +10,16 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@ant-design-vue/nuxt": "^1.2.0",
     "@nuxt/devtools": "latest",
+    "@types/crypto-js": "^4.2.1",
     "nuxt": "^3.8.2",
     "vue": "^3.3.12",
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
+    "crypto-js": "^4.2.0",
     "mongodb": "^6.3.0"
   }
 }
