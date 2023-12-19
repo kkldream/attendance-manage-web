@@ -29,6 +29,10 @@ class MongodbClient {
     return this.getCollection('record');
   }
 
+  get templateCol() {
+    return this.getCollection('template');
+  }
+
   getCollection<T extends Document>(name: string): Collection<T> {
     if (!this.#db) throw new Error();
     return this.#db.collection<T>(name);
