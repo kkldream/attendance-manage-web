@@ -1,7 +1,7 @@
 <template>
   <a-flex align="center" justify="center" style="height: 100vh;">
     <a-spin :spinning="spinning" tip="Loading...">
-      <a-card style="min-width: 80vw; margin: 0 8px">
+      <a-card style="max-width: 800px; margin: 0 8px">
         <a-form
             :model="formState"
             class="login-form"
@@ -70,15 +70,13 @@ const formState = reactive({
 
 const onFinish = async (values: FormState) => {
   spinning.value = true;
-  const {token} = await $fetch('/api/login', {
+  const token = await $fetch('/api/account/login', {
     method: 'POST',
     body: {
       username: values.username,
       password: values.password,
     },
   });
-  console.log(token);
-
   if (!token) {
     notifyPush({
       type: notifyType.error,

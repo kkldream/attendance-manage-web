@@ -5,16 +5,16 @@
       <div>
         選取套用：
         <a-select
-            v-model:value="daysSelectValue"
+            v-model:value="template.selectValueRef"
             :loading="false"
-            :options="daysSelectOptions"
+            :options="template.selectOptionsRef"
             style="width: 150px;"
             @change="attendanceSelectOnChange"
         ></a-select>
       </div>
       <a-space>
         <a-button type="primary" @click="insertTemplate">儲存模板</a-button>
-        <a-button danger type="primary" :disabled="daysSelectValue===0">刪除模板</a-button>
+        <a-button danger type="primary" :disabled="template.selectValueRef === 0">刪除模板</a-button>
       </a-space>
     </a-flex>
   </div>
@@ -75,24 +75,33 @@ import type {SelectProps} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {createVNode} from "vue";
 
-const daysRecord = (await $fetch('/api/template/get'))
-    .map((label, index) => ({label: label.name, value: index}));
 
-// 處理選擇的日期
-const daysSelectOptions = ref<SelectProps['options']>(daysRecord);
-const daysSelectValue = ref<number | null>(daysRecord[0].value);
+const template = {
+  selectValueRef: ref<number | null>(0),
+  selectOptionsRef: ref<SelectProps['options']>([]),
 
-const peopleInfo = (await $fetch('/api/getPeople'));
-const attendanceTypes = (await $fetch('/api/getAttendanceTypes'))
-    .map((label, index) => ({label, value: index}));
+  refresh: async () => {
+    const res = await $fetch('/api/template/get');
+    template.selectOptionsRef.value = res.map((label, index) => ({
+      label: label.name,
+      value: index
+    }));
+  }
+};
 
+template.refresh();
+
+const peopleInfo = (await $fetch('/api/people/get'));
+const attendanceTypes = (await $fetch('/api/config/getStatusList'))
+    .map((res, index) => ({label: res.name, value: index}));
+console.log(attendanceTypes);
 const attendanceSelectOptions = ref<SelectProps['options']>(attendanceTypes);
 const peoples = ref(peopleInfo.docs.map(people => ({
-  id: people._id,
+  id: people._id.toString(),
   name: people.name,
   direction: people.direction,
   email: people.email,
-  select: attendanceTypes[0].value,
+  select: 0,
 })));
 
 const editMode = ref<boolean>(false);
@@ -111,7 +120,7 @@ const insertPeopleModalOk = async () => {
     direction: insertPeopleModalInput.direction,
     email: insertPeopleModalInput.email,
   };
-  peopleDoc.id = await $fetch('/api/insertPeople', {
+  peopleDoc.id = await $fetch('/api/people/insert', {
     method: 'POST',
     body: peopleDoc,
   });
@@ -130,14 +139,13 @@ const insertPeopleModalOk = async () => {
 };
 
 async function attendanceSelectOnChange() {
-  daysRecord.value = (await $fetch('/api/template/get'))
-      .map((label, index) => ({label: label.name, value: index}));
-
-  daysSelectValue
-  peoples.value = peoples.value.map(e => ({
-    ...e,
-    select: attendanceTypes[0].value,
-  }));
+  // daysRecord = (await $fetch('/api/template/get'))
+  //     .map((res, index) => ({label: res.name, value: index}));
+  //
+  // peoples.value = peoples.value.map(e => ({
+  //   ...e,
+  //   select: attendanceTypes[0].value,
+  // }));
 }
 
 function editPeople(people: any) {
@@ -158,7 +166,7 @@ function deletePeople(people: any) {
     okType: 'danger',
     cancelText: 'No',
     async onOk() {
-      const isSuccess = await $fetch('/api/deletePeople', {
+      const isSuccess = await $fetch('/api/people/delete', {
         method: 'POST',
         body: {peopleId: people.id},
       });
@@ -170,6 +178,7 @@ function deletePeople(people: any) {
 }
 
 const templateName = ref<string>('');
+
 async function insertTemplate() {
   const template = peoples.value.filter(e => e.select !== 0).map(e => ({
     peopleId: e.id,

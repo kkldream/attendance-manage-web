@@ -42,8 +42,10 @@
 </template>
 <script lang="ts" setup>
 import {
-  DesktopOutlined, FileTextOutlined,
-  HomeOutlined, InfoCircleOutlined,
+  DesktopOutlined,
+  FileTextOutlined,
+  HomeOutlined,
+  InfoCircleOutlined,
   LoadingOutlined,
   LogoutOutlined,
   MenuFoldOutlined,

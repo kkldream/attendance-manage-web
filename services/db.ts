@@ -1,42 +1,46 @@
 import {Collection, Db, MongoClient} from "mongodb";
-import type PeopleDocument from "~/types/documents/PeopleDocument";
+import type {PeopleDocument} from "~/types/documents/PeopleDocument";
+import type {TemplateDocument} from "~/types/documents/TemplateDocument";
+import type {AccountDocument} from "~/types/documents/AccountDocument";
+import type {RecordDocument} from "~/types/documents/RecordDocument";
+import type {ConfigDocument} from "~/types/documents/ConfigDocument";
 
 class MongodbClient {
-  #client: MongoClient | undefined;
-  #db: Db | undefined;
+    #client: MongoClient | undefined;
+    #db: Db | undefined;
 
-  constructor(url: string, dbName: string) {
-    this.#client = new MongoClient(url);
-    this.#client.connect().then(client => {
-      this.#db = client.db(dbName);
-      console.log('mongodb connected');
-    });
-  }
+    constructor(url: string, dbName: string) {
+        this.#client = new MongoClient(url);
+        this.#client.connect().then(client => {
+            this.#db = client.db(dbName);
+            console.log('mongodb connected');
+        });
+    }
 
-  get accountCol() {
-    return this.getCollection('account');
-  }
+    get accountCol() {
+        return this.getCollection<AccountDocument>('account');
+    }
 
-  get peopleCol() {
-    return this.getCollection<PeopleDocument>('people');
-  }
+    get peopleCol() {
+        return this.getCollection<PeopleDocument>('people');
+    }
 
-  get attendanceCol() {
-    return this.getCollection('attendance');
-  }
+    get configCol() {
+        return this.getCollection<ConfigDocument>('config');
+    }
 
-  get recordCol() {
-    return this.getCollection('record');
-  }
+    get recordCol() {
+        return this.getCollection<RecordDocument>('record');
+    }
 
-  get templateCol() {
-    return this.getCollection('template');
-  }
+    get templateCol() {
+        return this.getCollection<TemplateDocument>('template');
+    }
 
-  getCollection<T extends Document>(name: string): Collection<T> {
-    if (!this.#db) throw new Error();
-    return this.#db.collection<T>(name);
-  }
+    getCollection<T extends Document>(name: string): Collection<T> {
+        if (!this.#db) throw new Error();
+        return this.#db.collection<T>(name);
+    }
 }
 
 const config = useRuntimeConfig();
