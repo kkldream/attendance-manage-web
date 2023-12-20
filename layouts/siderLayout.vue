@@ -3,10 +3,12 @@
     <a-layout-sider v-model:collapsed="collapsed">
       <a-flex align="center" style="height: 100px">
         <HomeOutlined style="font-size: 32px; color: white; margin-left: 24px; padding-bottom: 12px"/>
-        <h1 v-if="!collapsed" style="font-size: 24px; color: white; margin-left: 8px">HomeEasy</h1>
+        <h1 v-if="!collapsed" style="font-size: 16px; color: white; margin-left: 8px">
+          AttendanceMS
+        </h1>
       </a-flex>
       <a-menu v-model:selectedKeys="selectedKeys" mode="inline" theme="dark">
-        <a-menu-item v-for="item in navigation" :key="item.key">
+        <a-menu-item v-for="item in navigation" :key="item.key" style="margin-bottom: 8px">
           <component :is="item.icon"/>
           <span>{{ item.name }}</span>
         </a-menu-item>
@@ -61,11 +63,11 @@ const emit = defineEmits(['reload']);
 const router = useRouter();
 
 const navigation = ref([
-  {key: 'attendance', name: '儀錶板', path: '/', current: false, icon: DesktopOutlined},
-  {key: 'record', name: '點名記錄', path: '/record', current: false, icon: FileTextOutlined},
+  {key: 'index', name: '點名系統', path: '/', current: true, icon: DesktopOutlined},
+  {key: 'record', name: '歷史紀錄', path: '/record', current: false, icon: FileTextOutlined},
   {key: 'about', name: '關於', path: '/about', current: false, icon: InfoCircleOutlined},
 ]);
-const collapsed = ref<boolean>(true);
+const collapsed = ref<boolean>(false);
 const selectedKeys = ref<string[]>([]);
 const navigationBar = ref<string[]>(['首頁']);
 const loading = ref<boolean>(false);
@@ -92,7 +94,7 @@ const refreshPage = async (key?: string) => {
     console.log(`[router] reload -> ${routerMapItem.path}`);
     emit('reload');
   }
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 200));
   loading.value = false;
 };
 </script>

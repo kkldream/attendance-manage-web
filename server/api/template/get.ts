@@ -1,17 +1,11 @@
 import db from '~/services/db';
-import type {Template} from "~/types/documents/TemplateDocument";
+import type {TemplateWithId} from "~/types/indexType";
 
-export default defineEventHandler(async (event): Promise<Template[]> => {
-  const templateDocs
-      = await db.templateCol.find({}).toArray();
-  return [
-    {
-      name: '預設',
-      template: [],
-    },
-    ...templateDocs.map(doc => ({
-      name: doc.name,
-      template: doc.template,
-    })),
-  ];
+export default defineEventHandler(async (event): Promise<TemplateWithId[]> => {
+  const res = await db.templateCol.find({}).toArray();
+  return res.map(res => ({
+    templateId: res._id.toString(),
+    name: res.name,
+    template: res.template,
+  }));
 });
