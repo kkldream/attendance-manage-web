@@ -11,6 +11,10 @@ import LoginLayout from "~/layouts/loginLayout.vue";
 
 const useLoginStatus = useLoginStatusStore();
 const isRouterAlive = ref<boolean>(true);
+const tokenCookie = useCookie('token');
+
+if (tokenCookie.value)
+  useLoginStatus.setLogIn(tokenCookie.value);
 
 useLoginStatus.$subscribe(() => {
   reload();

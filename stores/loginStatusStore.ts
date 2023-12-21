@@ -1,11 +1,8 @@
 import {defineStore} from "pinia";
-// import {useCookies} from "vue3-cookies";
-
-// const {cookies} = useCookies();
 
 export const useLoginStatusStore = defineStore('loginStatus', {
   state: () => {
-    // const token = cookies.get('token') ?? null;
+    // const token = tokenCookie.value ?? null;
     const token: string | null = null;
     return {
       token: token as string | null,
@@ -18,9 +15,8 @@ export const useLoginStatusStore = defineStore('loginStatus', {
     setLogIn(token: string) {
       this.token = token;
     },
-    setLogOut() {
-      // cookies.remove('token');
-      this.token = null;
+    setToken(token: string | null) {
+      this.token = token;
     },
   },
 });

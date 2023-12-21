@@ -77,6 +77,7 @@ import InsertTemplateButtonWithModel from "~/components/insertTemplateButtonWith
 import type {WithId} from "mongodb";
 import type {PeopleDocument} from "~/types/documents/PeopleDocument";
 import {notifyPush, notifyType} from "~/services/notify";
+import type {Record} from "~/types/documents/RecordDocument";
 
 const editMode = ref<boolean>(false);
 const editIsAlive = ref<boolean>(true);
@@ -174,14 +175,60 @@ async function refreshPeoples() {
 
 async function clickSend() {
   buttonLoading.value = true;
-  setTimeout(() => {
-    buttonLoading.value = false;
+  const attendanceStatus: string[] = await $fetch('/api/config/getStatusList');
+  const record: Record = {
+    createTime: new Date(),
+    record: peoples.value.map(e => ({
+      peopleId: e.id,
+      status: e.select !== null ? attendanceStatus[e.select] : '未知',
+    })),
+  };
+  await $fetch('/api/record/insert', {
+    method: 'POST',
+    body: record,
+  });
+  // 寄送Mail
+  const html = await generateMail(record);
+  const res = await $fetch('/api/record/sendMail', {
+    method: 'POST',
+    body: {html}
+  });
+  console.log(res);
+  if (!res || res.status !== 0) {
+    notifyPush({
+      type: notifyType.error,
+      message: '寄送失敗',
+      description: '請稍後再試或告知開發人員',
+    });
+  } else {
     notifyPush({
       type: notifyType.success,
-      message: '送出成功',
-      description: '已將點名單送出',
+      message: '寄送成功',
+      description: '已將點名單寄送',
     });
-  }, 2000);
+  }
+  buttonLoading.value = false;
+}
+
+async function generateMail(record: Record): Promise<string> {
+  const peoples = await $fetch('/api/people/get');
+  const body = record.record.map(e => ({
+    username: peoples.find(people => people._id.toString() === e.peopleId)?.name ?? '未知',
+    status: e.status,
+  }));
+  return "<body>\n" +
+      "<table style=\"border: 1px solid;\">\n" +
+      "    <thead>\n" +
+      "    <tr>\n" +
+      "        <th style=\"border: 1px solid;\">姓名 Name</th>\n" +
+      "        <th style=\"border: 1px solid;\">出席Attendance status</th>\n" +
+      "    </tr>\n" +
+      "    </thead>\n" +
+      "    <tbody>\n" +
+      body.map(e => `<tr><td style=\"border: 1px solid;\">${e.username}</td><td style=\"border: 1px solid;\">${e.status}</td></tr>`).join("\n") +
+      "    </tbody>\n" +
+      "</table>\n" +
+      "</body>";
 }
 </script>
 <style scoped>

@@ -2,7 +2,7 @@
   <a-layout class="test" style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed">
       <a-flex align="center" style="height: 100px">
-        <HomeOutlined style="font-size: 32px; color: white; margin-left: 24px; padding-bottom: 12px"/>
+        <AuditOutlined style="font-size: 24px; color: white; margin-left: 24px;"/>
         <h1 v-if="!collapsed" style="font-size: 16px; color: white; margin-left: 8px">
           AttendanceMS
         </h1>
@@ -24,7 +24,7 @@
             <LoadingOutlined v-else class="header-button-icon"/>
           </div>
           <div>
-            <LogoutOutlined class="header-button-icon" @click="useLoginStatus.setLogOut()"/>
+            <LogoutOutlined class="header-button-icon" @click="logOut"/>
           </div>
         </a-flex>
       </a-layout-header>
@@ -37,7 +37,7 @@
         </div>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
-        Ant Design ©2018 Created by Ant UED
+        Attendance Manage System | Created by 2023
       </a-layout-footer>
     </a-layout>
   </a-layout>
@@ -46,7 +46,6 @@
 import {
   DesktopOutlined,
   FileTextOutlined,
-  HomeOutlined,
   InfoCircleOutlined,
   LoadingOutlined,
   LogoutOutlined,
@@ -61,6 +60,7 @@ import {useLoginStatusStore} from "~/stores/loginStatusStore";
 const useLoginStatus = useLoginStatusStore();
 const emit = defineEmits(['reload']);
 const router = useRouter();
+const tokenCookie = useCookie('token');
 
 const navigation = ref([
   {key: 'index', name: '點名系統', path: '/', current: true, icon: DesktopOutlined},
@@ -97,6 +97,11 @@ const refreshPage = async (key?: string) => {
   await new Promise(resolve => setTimeout(resolve, 200));
   loading.value = false;
 };
+
+function logOut() {
+  useLoginStatus.setToken(null);
+  tokenCookie.value = null;
+}
 </script>
 <style scoped>
 .header-button-icon {

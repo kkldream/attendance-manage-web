@@ -50,16 +50,12 @@
 </template>
 <script lang="ts" setup>
 import {reactive, ref} from "vue";
-// import {useCookies} from "vue3-cookies";
 import {LockOutlined, UserOutlined} from '@ant-design/icons-vue';
-// import {sha256} from "~/services/hash";
-// import {notifyPush, notifyPushError, notifyType} from "~/services/notify";
 import {useLoginStatusStore} from "~/stores/loginStatusStore";
 import {notifyPush, notifyType} from "~/services/notify";
-// import {delayAsyncFunc} from "~/services/timeService";
 
 const useLoginStatus = useLoginStatusStore();
-// const {cookies} = useCookies();
+const tokenCookie = useCookie('token');
 
 const spinning = ref<boolean>(false);
 const formState = reactive({
@@ -84,8 +80,8 @@ const onFinish = async (values: FormState) => {
       description: '帳號或密碼錯誤',
     });
   } else {
-    // if (values.remember)
-    //   cookies.set("token", result.token);
+    if (values.remember)
+      tokenCookie.value = token;
     notifyPush({
       type: notifyType.success,
       message: '登入成功',
