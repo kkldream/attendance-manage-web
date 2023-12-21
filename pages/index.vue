@@ -47,7 +47,7 @@
           <a-space size="small">
             {{ people.name }}
             <div v-if="people.direction.length > 0">
-              ({{ people.direction }})
+              -&nbsp;&nbsp;{{ people.direction }}
             </div>
             <edit-people-button-with-model v-if="editMode && editIsAlive" :value="people" @refresh="refreshPeoples"/>
           </a-space>
