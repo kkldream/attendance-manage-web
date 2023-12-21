@@ -11,6 +11,7 @@ class MongodbClient {
 
     constructor(url: string, dbName: string) {
         this.#client = new MongoClient(url);
+        console.log(`mongodb connecting to ${url}`);
         this.#client.connect().then(client => {
             this.#db = client.db(dbName);
             console.log('mongodb connected');
@@ -38,7 +39,7 @@ class MongodbClient {
     }
 
     getCollection<T extends Document>(name: string): Collection<T> {
-        if (!this.#db) throw new Error();
+        if (!this.#db) throw new Error("getCollection");
         return this.#db.collection<T>(name);
     }
 }
