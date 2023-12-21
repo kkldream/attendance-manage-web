@@ -188,13 +188,13 @@ async function clickSend() {
     body: record,
   });
   // 寄送Mail
+  const mail = peoples.value.filter(e => e.email.length > 0).map(e => e.email);
   const html = await generateMail(record);
   const res = await $fetch('/api/record/sendMail', {
     method: 'POST',
-    body: {html}
+    body: {mail, html}
   });
-  console.log(res);
-  if (!res || res.status !== 0) {
+  if (!res) {
     notifyPush({
       type: notifyType.error,
       message: '寄送失敗',
