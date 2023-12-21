@@ -12,8 +12,8 @@
     </a-space>
     <a-collapse v-for="body in bodys" v-model:activeKey="body.activeKey" collapsible="header" style="margin-bottom: 16px">
       <a-collapse-panel :header="new Date(body.createTime).toLocaleString() as never">
-        <a-flex justify="space-around" wrap="wrap">
-          <a-card v-for="record in body.record" :title="record.status">
+        <a-flex wrap="wrap">
+          <a-card v-for="record in body.record" :title="record.status" style="width: 250px; margin: 8px 8px">
             <ul>
               <li v-for="username in record.username" style="margin-bottom: 8px">
                 {{ username }}
