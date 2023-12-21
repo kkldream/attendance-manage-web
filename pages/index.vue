@@ -56,7 +56,7 @@
               :disabled="editMode"
               :loading="false"
               :options="attendanceSelectOptions"
-              style="width: 150px;"
+              style="width: 200px;"
           ></a-select>
         </a-flex>
       </a-card>
@@ -175,39 +175,51 @@ async function refreshPeoples() {
 
 async function clickSend() {
   buttonLoading.value = true;
-  const attendanceStatus: string[] = await $fetch('/api/config/getStatusList');
-  const record: Record = {
-    createTime: new Date(),
-    record: peoples.value.map(e => ({
-      peopleId: e.id,
-      status: e.select !== null ? attendanceStatus[e.select] : '未知',
-    })),
-  };
-  await $fetch('/api/record/insert', {
-    method: 'POST',
-    body: record,
+  Modal.confirm({
+    title: `確定送出？`,
+    content: `將會寄送點名單至所有成員的信箱`,
+    okText: 'Yes',
+    cancelText: 'No',
+    async onOk() {
+      const attendanceStatus: string[] = await $fetch('/api/config/getStatusList');
+      const record: Record = {
+        createTime: new Date(),
+        record: peoples.value.map(e => ({
+          peopleId: e.id,
+          status: e.select !== null ? attendanceStatus[e.select] : '未知',
+        })),
+      };
+      await $fetch('/api/record/insert', {
+        method: 'POST',
+        body: record,
+      });
+      // 寄送Mail
+      const mail = peoples.value.filter(e => e.email.length > 0).map(e => e.email);
+      // mail.push('schuang@mail.ntut.edu.tw');
+      const html = await generateMail(record);
+      const res = await $fetch('/api/record/sendMail', {
+        method: 'POST',
+        body: {mail, html}
+      });
+      if (!res) {
+        notifyPush({
+          type: notifyType.error,
+          message: '寄送失敗',
+          description: '請稍後再試或告知開發人員',
+        });
+      } else {
+        notifyPush({
+          type: notifyType.success,
+          message: '寄送成功',
+          description: '已將點名單寄送',
+        });
+      }
+      buttonLoading.value = false;
+    },
+    onCancel() {
+      buttonLoading.value = false;
+    },
   });
-  // 寄送Mail
-  const mail = peoples.value.filter(e => e.email.length > 0).map(e => e.email);
-  const html = await generateMail(record);
-  const res = await $fetch('/api/record/sendMail', {
-    method: 'POST',
-    body: {mail, html}
-  });
-  if (!res) {
-    notifyPush({
-      type: notifyType.error,
-      message: '寄送失敗',
-      description: '請稍後再試或告知開發人員',
-    });
-  } else {
-    notifyPush({
-      type: notifyType.success,
-      message: '寄送成功',
-      description: '已將點名單寄送',
-    });
-  }
-  buttonLoading.value = false;
 }
 
 async function generateMail(record: Record): Promise<string> {
