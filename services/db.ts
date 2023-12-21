@@ -44,8 +44,11 @@ class MongodbClient {
     }
 }
 
-const config = useRuntimeConfig();
-const mongodbUrl = config.mongodbUrl;
+// TODO 優化server side取環境變數方法
+// const config = useRuntimeConfig();
+// const mongodbUrl = config.mongodbUrl;
+const mongodbUrl = (process.env.MONGODB_URL || "mongodb://localhost:27017").trim();
+console.log(`mongodb url: ${mongodbUrl}`);
 const dbName = 'attendance-manage-web';
 const db = new MongodbClient(mongodbUrl, dbName);
 
