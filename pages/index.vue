@@ -98,7 +98,6 @@ async function refreshTemplate() {
     label: template.name,
     value: index,
   }));
-  console.log(templates);
   templateSelectValue.value = 0;
 }
 
@@ -211,8 +210,10 @@ async function clickSend() {
         notifyPush({
           type: notifyType.success,
           message: '寄送成功',
-          description: '已將點名單寄送',
+          description: `已將點名單寄送給 ${mail.length} 位成員`,
         });
+        console.log('Email sent successfully:');
+        console.log(mail);
       }
       buttonLoading.value = false;
     },
@@ -232,15 +233,25 @@ async function generateMail(record: Record): Promise<string> {
       "<table style=\"border: 1px solid;\">\n" +
       "    <thead>\n" +
       "    <tr>\n" +
-      "        <th style=\"border: 1px solid;\">姓名 Name</th>\n" +
-      "        <th style=\"border: 1px solid;\">出席Attendance status</th>\n" +
+      `        <th colspan="2" style="border: 1px solid; padding: 3px 16px;">Attendance check at "${formatDateTime(new Date())}"</th>\n` +
+      "    </tr>\n" +
+      "    <tr>\n" +
+      "        <th style=\"border: 1px solid; padding: 3px 10px;\">Name</th>\n" +
+      "        <th style=\"border: 1px solid; padding: 3px 10px;\">Status</th>\n" +
       "    </tr>\n" +
       "    </thead>\n" +
       "    <tbody>\n" +
-      body.map(e => `<tr><td style=\"border: 1px solid;\">${e.username}</td><td style=\"border: 1px solid;\">${e.status}</td></tr>`).join("\n") +
+      body.map(e => `<tr><td style=\"border: 1px solid; padding: 3px 10px;\">${e.username}</td><td style=\"border: 1px solid; padding: 3px 10px;\">${e.status}</td></tr>`).join("\n") +
       "    </tbody>\n" +
       "</table>\n" +
       "</body>";
+}
+
+function formatDateTime(date: Date) {
+  const hours = date.getHours();
+  const period = hours < 12 ? 'AM' : 'PM';
+  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+  return `${date.toDateString()} ${formattedHours} ${period}`;
 }
 </script>
 <style scoped>
