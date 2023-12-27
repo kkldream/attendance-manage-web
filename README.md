@@ -1,4 +1,4 @@
-# Attendance-Manage-System-Web
+# Attendance-Manage-Web
 
 ## Setup
 
