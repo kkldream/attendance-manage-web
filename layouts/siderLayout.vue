@@ -37,7 +37,9 @@
         </div>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
-        Attendance Manage System | Created by 2023
+        Attendance Manage System
+        | Created by 2023 |
+        <a href="https://github.com/kkldream/attendance-manage-web">Source</a>
       </a-layout-footer>
     </a-layout>
   </a-layout>
