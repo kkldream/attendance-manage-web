@@ -2,15 +2,16 @@
   <div style="padding: 8px 24px 24px; background: #fff; margin-bottom: 16px;">
     <a-space size="middle" style="margin: 16px 0">
       <a-button type="primary" size="small" @click="active(true)">
-        <CaretDownOutlined />
+        <CaretDownOutlined/>
         展開全部
       </a-button>
       <a-button type="primary" size="small" @click="active(false)">
-        <CaretUpOutlined />
+        <CaretUpOutlined/>
         摺疊全部
       </a-button>
     </a-space>
-    <a-collapse v-for="body in bodys" v-model:activeKey="body.activeKey" collapsible="header" style="margin-bottom: 16px">
+    <a-collapse v-for="body in bodys" v-model:activeKey="body.activeKey" collapsible="header"
+                style="margin-bottom: 16px">
       <a-collapse-panel :header="new Date(body.createTime).toLocaleString() as never">
         <a-flex wrap="wrap">
           <a-card v-for="record in body.record" :title="record.status" style="width: 250px; margin: 8px 8px">
@@ -26,8 +27,21 @@
   </div>
 </template>
 <script lang="ts" setup>
-const record = await $fetch('/api/record/get');
-const peoples = await $fetch('/api/people/get');
+import {useLoginStatusStore} from "~/stores/loginStatusStore";
+
+const record = await $fetch('/api/record/get', {
+  method: 'POST',
+  body: {
+    token: useLoginStatusStore().token,
+  }
+});
+const peoples = await $fetch('/api/people/get', {
+  method: 'POST',
+  body: {
+    token: useLoginStatusStore().token,
+  }
+});
+
 const bodys = ref<BodyType[]>([]);
 
 refreshBodys();

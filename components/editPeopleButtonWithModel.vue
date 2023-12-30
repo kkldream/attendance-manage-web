@@ -22,6 +22,7 @@
 <script lang="ts" setup>
 import type {Attendance} from "~/types/indexType";
 import type {UnwrapRefSimple} from "@vue/reactivity";
+import {useLoginStatusStore} from "~/stores/loginStatusStore";
 
 const props = defineProps(['value']);
 const emit = defineEmits(['refresh']);
@@ -40,6 +41,7 @@ async function clickEditOk() {
   await $fetch('/api/people/edit', {
     method: 'POST',
     body: {
+      token: useLoginStatusStore().token,
       peopleId: people.id,
       data: {
         name: people.name,
@@ -62,7 +64,10 @@ async function clickDelete() {
     async onOk() {
       const isSuccess = await $fetch('/api/people/delete', {
         method: 'POST',
-        body: {peopleId: people.id},
+        body: {
+          token: useLoginStatusStore().token,
+          peopleId: people.id
+        },
       });
       if (isSuccess) emit('refresh');
     },

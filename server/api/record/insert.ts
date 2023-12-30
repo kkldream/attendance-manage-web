@@ -1,12 +1,13 @@
 import db from '~/services/db';
-import {Template} from "~/types/documents/TemplateDocument";
 import {Record} from "~/types/documents/RecordDocument";
 
-type Request = Record;
+interface Request {
+    record: Record;
+}
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event) as Request
-  const result = await db.recordCol
-    .insertOne(body as any);
-  return result.insertedId;
+    const {record} = await readBody(event) as Request
+    const result = await db.recordCol
+        .insertOne(record as any);
+    return result.insertedId;
 });

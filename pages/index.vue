@@ -31,7 +31,7 @@
           編輯模式：
           <a-switch v-model:checked="editMode"/>
         </div>
-        <a-button :disabled="editMode" type="primary" :loading="buttonLoading" @click="clickSend">
+        <a-button :disabled="editMode" :loading="buttonLoading" type="primary" @click="clickSend">
           送出點名單
         </a-button>
       </a-space>
@@ -78,6 +78,7 @@ import type {WithId} from "mongodb";
 import type {PeopleDocument} from "~/types/documents/PeopleDocument";
 import {notifyPush, notifyType} from "~/services/notify";
 import type {Record} from "~/types/documents/RecordDocument";
+import {useLoginStatusStore} from "~/stores/loginStatusStore";
 
 const editMode = ref<boolean>(false);
 const editIsAlive = ref<boolean>(true);
@@ -93,7 +94,12 @@ refreshStatus();
 refreshTemplate();
 
 async function refreshTemplate() {
-  templates = await $fetch('/api/template/get');
+  templates = await $fetch('/api/template/get', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   templateSelectOptions.value = templates.map((template, index) => ({
     label: template.name,
     value: index,
@@ -108,7 +114,12 @@ async function clickTemplateSelect(mode: 'init' | 'change') {
   }
   if (templateSelectValue.value === null) return;
   const template = templates[templateSelectValue.value];
-  const res: string[] = await $fetch('/api/config/getStatusList');
+  const res: string[] = await $fetch('/api/config/getStatusList', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   peoples.value.forEach(people => {
     const result = template.template.find(e => e.peopleId === people.id);
     if (!result) people.select = 0;
@@ -138,6 +149,7 @@ async function templateDelete() {
       const isSuccess = await $fetch('/api/template/delete', {
         method: 'POST',
         body: {
+          token: useLoginStatusStore().token,
           templateId: template.templateId,
         },
       });
@@ -152,7 +164,12 @@ async function templateDelete() {
 }
 
 async function refreshStatus() {
-  const res: string[] = await $fetch('/api/config/getStatusList');
+  const res: string[] = await $fetch('/api/config/getStatusList', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   attendanceSelectOptions.value = res.map((label, index) => ({
     label: label,
     value: index,
@@ -161,7 +178,12 @@ async function refreshStatus() {
 
 async function refreshPeoples() {
   editIsAlive.value = false;
-  const res: WithId<PeopleDocument>[] = await $fetch('/api/people/get');
+  const res: WithId<PeopleDocument>[] = await $fetch('/api/people/get', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   peoples.value = res.map((people: WithId<PeopleDocument>): Attendance => ({
     id: people._id.toString(),
     name: people.name,
@@ -180,7 +202,12 @@ async function clickSend() {
     okText: 'Yes',
     cancelText: 'No',
     async onOk() {
-      const attendanceStatus: string[] = await $fetch('/api/config/getStatusList');
+      const attendanceStatus: string[] = await $fetch('/api/config/getStatusList', {
+        method: 'POST',
+        body: {
+          token: useLoginStatusStore().token,
+        }
+      });
       const record: Record = {
         createTime: new Date(),
         record: peoples.value.map(e => ({
@@ -190,7 +217,10 @@ async function clickSend() {
       };
       await $fetch('/api/record/insert', {
         method: 'POST',
-        body: record,
+        body: {
+          token: useLoginStatusStore().token,
+          record,
+        },
       });
       // 寄送Mail
       const mail = peoples.value.filter(e => e.email.length > 0).map(e => e.email);
@@ -198,7 +228,11 @@ async function clickSend() {
       const html = await generateMail(record);
       const res = await $fetch('/api/record/sendMail', {
         method: 'POST',
-        body: {mail, html}
+        body: {
+          token: useLoginStatusStore().token,
+          mail,
+          html,
+        }
       });
       if (!res) {
         notifyPush({
@@ -224,7 +258,13 @@ async function clickSend() {
 }
 
 async function generateMail(record: Record): Promise<string> {
-  const peoples = await $fetch('/api/people/get');
+  const peoples = await $fetch('/api/people/get', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
+  ;
   const body = record.record.map(e => ({
     username: peoples.find(people => people._id.toString() === e.peopleId)?.name ?? '未知',
     status: e.status,

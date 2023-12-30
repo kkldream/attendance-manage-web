@@ -19,6 +19,7 @@
 </template>
 <script lang="ts" setup>
 import type {People} from "~/types/documents/PeopleDocument";
+import {useLoginStatusStore} from "~/stores/loginStatusStore";
 
 const props = defineProps(['index']);
 const emit = defineEmits(['refresh']);
@@ -48,7 +49,10 @@ const clickOk = async () => {
   };
   await $fetch('/api/people/insert', {
     method: 'POST',
-    body: peopleDoc,
+    body: {
+      token: useLoginStatusStore().token,
+      peopleDoc
+    },
   });
   visible.value = false;
   emit('refresh');

@@ -19,7 +19,8 @@
 </template>
 <script lang="ts" setup>
 import type {UnwrapRefSimple} from "@vue/reactivity";
-import type {Attendance, TemplateWithId} from "~/types/indexType";
+import type {Attendance} from "~/types/indexType";
+import {useLoginStatusStore} from "~/stores/loginStatusStore";
 
 const props = defineProps(['peoples']);
 const emit = defineEmits(['refresh']);
@@ -31,7 +32,12 @@ const body = ref<{ username: string; status: string; }[]>();
 
 const clickShow = async () => {
   templateName.value = '';
-  const res: string[] = await $fetch('/api/config/getStatusList');
+  const res: string[] = await $fetch('/api/config/getStatusList', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   body.value = peoples.filter(e => e.select !== 0).map(e => ({
     username: e.name,
     status: e.select !== null ? res[e.select] : 'null',
@@ -40,16 +46,24 @@ const clickShow = async () => {
 };
 
 const clickOk = async () => {
-  const res: string[] = await $fetch('/api/config/getStatusList');
+  const res: string[] = await $fetch('/api/config/getStatusList', {
+    method: 'POST',
+    body: {
+      token: useLoginStatusStore().token,
+    }
+  });
   await $fetch('/api/template/insert', {
     method: 'POST',
     body: {
-      createTime: new Date(),
-      name: templateName.value,
-      template: peoples.filter(e => e.select !== 0).map(e => ({
-        peopleId: e.id,
-        status: res[e.select ?? 0],
-      })),
+      token: useLoginStatusStore().token,
+      peopleDoc: {
+        createTime: new Date(),
+        name: templateName.value,
+        template: peoples.filter(e => e.select !== 0).map(e => ({
+          peopleId: e.id,
+          status: res[e.select ?? 0],
+        })),
+      },
     },
   });
   visible.value = false;
