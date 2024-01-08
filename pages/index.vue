@@ -224,7 +224,8 @@ async function clickSend() {
       });
       // 寄送Mail
       const mail = peoples.value.filter(e => e.email.length > 0).map(e => e.email);
-      // mail.push('schuang@mail.ntut.edu.tw');
+      mail.push('schuang@ntut.edu.tw');
+      mail.push('schuang@mail.ntut.edu.tw');
       const html = await generateMail(record);
       const res = await $fetch('/api/record/sendMail', {
         method: 'POST',
