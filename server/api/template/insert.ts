@@ -1,9 +1,13 @@
 import db from '~/services/db';
 import {Template} from "~/types/documents/TemplateDocument";
 
+interface Request {
+    peopleDoc: Template;
+}
+
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event) as Template
+    const {peopleDoc} = await readBody(event) as Request
     const result = await db.templateCol
-        .insertOne(body as any);
+        .insertOne(peopleDoc as any);
     return result.insertedId;
 });
